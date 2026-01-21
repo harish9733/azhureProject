@@ -1,0 +1,9 @@
+{
+	"name": "adrcourse-harish",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "074014e0-d2c6-49a4-8078-75cf262573f0",
+		"tenantId": "390e86f6-d821-4482-a2b3-509f9f56d2c7"
+	}
+}
