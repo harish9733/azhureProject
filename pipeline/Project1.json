@@ -5,11 +5,15 @@
 			{
 				"name": "AzhureSQLtable",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "getCDC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set variable1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -27,7 +31,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select *\nfrom @{pipeline().parameters.schema}.@{pipeline().parameters.table}\nwhere pipeline().parameters.cdc_column > '@{activity('getCDC').output.value[0].cdc_timestamp}'",
+							"value": "select *\nfrom @{pipeline().parameters.schema}.@{pipeline().parameters.table}\nwhere @{pipeline().parameters.cdc_column} > '@{activity('getCDC').output.value[0].cdc_timestamp}'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -54,14 +58,22 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "AzureSqlTable1",
+						"referenceName": "DynamicSQl",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
 						"referenceName": "ProjectSink1",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "project",
+							"schema": "sink_ingestion",
+							"file_name": {
+								"value": "@concat(pipeline().parameters.table,'_',variables('current_time_stamp'))",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			},
@@ -100,20 +112,42 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "current_time_stamp",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
 			"schema": {
 				"type": "string",
-				"defaultValue": "source"
+				"defaultValue": "dbo"
 			},
 			"table": {
 				"type": "string",
-				"defaultValue": "orders"
+				"defaultValue": "DimUser"
 			},
 			"cdc_column": {
 				"type": "string",
-				"defaultValue": "NULL"
+				"defaultValue": "updated_at"
+			}
+		},
+		"variables": {
+			"current_time_stamp": {
+				"type": "String"
 			}
 		},
 		"annotations": []
