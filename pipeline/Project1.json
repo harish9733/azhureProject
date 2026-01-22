@@ -31,7 +31,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select *\nfrom @{pipeline().parameters.schema}.@{pipeline().parameters.table}\nwhere @{pipeline().parameters.cdc_column} > '@{activity('getCDC').output.value[0].cdc_timestamp}'",
+							"value": "select *\nfrom @{pipeline().parameters.schema}.@{pipeline().parameters.table}\nwhere @{pipeline().parameters.cdc_column} > '@{if(empty(pipeline().parameters.back_date),activity('getCDC').output.value[0].cdc_timestamp,pipeline().parameters.back_date)}'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -165,14 +165,8 @@
 									"referenceName": "ProjectSink1",
 									"type": "DatasetReference",
 									"parameters": {
-										"container": {
-											"value": "@pipeline().parameters.schema",
-											"type": "Expression"
-										},
-										"schema": {
-											"value": "@pipeline().parameters.table",
-											"type": "Expression"
-										},
+										"container": "project",
+										"schema": "sink_ingestion",
 										"file_name": {
 											"value": "@concat(pipeline().parameters.table,'_',variables('current_time_stamp'))",
 											"type": "Expression"
@@ -298,6 +292,10 @@
 			"cdc_column": {
 				"type": "string",
 				"defaultValue": "updated_at"
+			},
+			"back_date": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
 			}
 		},
 		"variables": {
