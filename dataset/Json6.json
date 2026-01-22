@@ -1,0 +1,20 @@
+{
+	"name": "Json6",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceDL1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "cdc.json",
+				"folderPath": "source_ingestion",
+				"fileSystem": "project"
+			}
+		},
+		"schema": {}
+	}
+}
